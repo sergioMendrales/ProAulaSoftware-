@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Ganado - Sistema Ganadero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Fuentes e iconos -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        :root {
+            --brand-900: #0f2a0f;
+            --brand-700: #1a331a;
+            --brand-500: #2a6b2a;
+            --brand-300: #4a9c4a;
+            --brand-100: #e9f6ea;
+            --muted: #6b7280;
+            --surface: #ffffff;
+            --accent: #e9f6ea;
+            --shadow-sm: 0 2px 8px rgba(15, 42, 15, 0.06);
+            --shadow-md: 0 4px 20px rgba(15, 42, 15, 0.08);
+            --shadow-lg: 0 10px 30px rgba(15, 42, 15, 0.12);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f9f5 0%, #e8f4e8 100%);
+            color: var(--brand-900);
+            line-height: 1.7;
+            font-weight: 400;
+            min-height: 100vh;
+        }
+
+        /* Header fijo consistente */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            height: 70px;
+            border-bottom: 1px solid rgba(15, 42, 15, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: translateY(-1px);
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-900));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+            margin-right: 12px;
+            box-shadow: 0 4px 12px rgba(42, 107, 42, 0.3);
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--brand-900);
+            letter-spacing: 0.5px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--brand-900);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--brand-100);
+            border-radius: 20px;
+        }
+
+        .user-name i {
+            color: var(--brand-500);
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--brand-500);
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: 2px solid var(--brand-500);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: var(--brand-500);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 100px 20px 40px;
+        }
+
+        /* Tarjeta del formulario mejorada */
+        .card-form {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(15, 42, 15, 0.05);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--brand-500), var(--brand-300));
+        }
+
+        .card-form:hover {
+            box-shadow: 0 15px 40px rgba(15, 42, 15, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .form-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-900));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 20px rgba(42, 107, 42, 0.3);
+        }
+
+        .form-header h2 {
+            color: var(--brand-900);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle {
+            color: var(--muted);
+            font-size: 16px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Estilos de formulario mejorados */
+        .form-label {
+            font-weight: 600;
+            color: var(--brand-900);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .form-label i {
+            color: var(--brand-500);
+            width: 20px;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 15px;
+            padding: 14px 16px;
+            color: var(--brand-900);
+            background-color: #f9fafb;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--brand-300);
+            outline: none;
+            background-color: var(--surface);
+            box-shadow: 0 0 0 3px rgba(74, 156, 74, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: #e53e3e;
+            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+        }
+
+        .form-control.is-valid, .form-select.is-valid {
+            border-color: var(--brand-500);
+            box-shadow: 0 0 0 3px rgba(42, 107, 42, 0.1);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            z-index: 5;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+        }
+
+        .invalid-feedback {
+            font-size: 0.875rem;
+            color: #e53e3e;
+            display: none;
+            margin-top: 6px;
+            font-weight: 500;
+            padding-left: 28px;
+        }
+
+        .form-control.is-invalid + .invalid-feedback,
+        .form-select.is-invalid + .invalid-feedback {
+            display: block;
+        }
+
+        .valid-feedback {
+            font-size: 0.875rem;
+            color: var(--brand-500);
+            display: none;
+            margin-top: 6px;
+            font-weight: 500;
+            padding-left: 28px;
+        }
+
+        .form-control.is-valid + .valid-feedback,
+        .form-select.is-valid + .valid-feedback {
+            display: block;
+        }
+
+        /* Botones mejorados */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+            color: white;
+            box-shadow: 0 4px 15px rgba(42, 107, 42, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--brand-700), var(--brand-900));
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--muted);
+            border: 2px solid var(--muted);
+        }
+
+        .btn-secondary:hover {
+            background: var(--muted);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(15, 42, 15, 0.1);
+        }
+
+        /* Animaciones personalizadas */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 12px 20px;
+            }
+
+            .logo-text {
+                font-size: 16px;
+            }
+
+            .user-menu {
+                gap: 12px;
+            }
+
+            .container {
+                padding: 120px 15px 30px;
+            }
+
+            .card-form {
+                padding: 25px;
+            }
+
+            .form-header h2 {
+                font-size: 24px;
+            }
+
+            .form-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .user-name span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header fijo consistente -->
+<div class="top-header">
+    <a href="/" class="logo">
+        <div class="logo-icon">SG</div>
+        <div class="logo-text">SISTEMA GANADERO</div>
+    </a>
+    <div class="user-menu">
+        <div sec:authorize="isAuthenticated()">
+            <span class="user-name"><i class="fas fa-user-circle"></i> <span th:text="${#authentication.name}">Usuario</span></span>
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> CERRAR SESIÓN</a>
+        </div>
+        <div sec:authorize="!isAuthenticated()">
+            <a href="/login" class="logout-btn"><i class="fas fa-sign-out-alt"></i> INICIAR SESIÓN</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card-form animate_animated animate_fadeIn">
+        <div class="form-header">
+            <div class="form-icon">
+                <i class="fas fa-edit"></i>
+            </div>
+            <h2>EDITAR INFORMACIÓN DEL GANADO</h2>
+            <p class="form-subtitle">Actualiza los datos del animal en el sistema de gestión ganadera</p>
+        </div>
+
+        <form th:action="@{/ganado/actualizar}" th:object="${ganado}" method="post" class="row g-4 needs-validation" novalidate>
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="col-md-6 animate_animated animate_fadeInUp">
+                <label for="codigoOficial" class="form-label">
+                    <i class="fas fa-tag"></i> Código oficial / Marca
+                </label>
+                <div class="input-group">
+                    <input type="text" th:field="*{codigoOficial}" class="form-control" id="codigoOficial" placeholder="Código oficial o marca" required>
+                    <i class="fas fa-cow input-icon"></i>
+                </div>
+                <div class="invalid-feedback">Ingrese un código o marca válida.</div>
+                <div class="valid-feedback">Código válido</div>
+            </div>
+
+            <div class="col-md-6 animate_animated animatefadeInUp animate_delay-1s">
+                <label for="raza" class="form-label">
+                    <i class="fas fa-dna"></i> Raza
+                </label>
+                <select th:field="*{raza}" class="form-select" id="raza" required>
+                    <option value="" disabled selected>Seleccionar raza</option>
+                    <option value="Holstein">Holstein</option>
+                    <option value="Brahman">Brahman</option>
+                    <option value="Angus">Angus</option>
+                    <option value="Simmental">Simmental</option>
+                    <option value="Jersey">Jersey</option>
+                    <option value="Hereford">Hereford</option>
+                    <option value="Limousin">Limousin</option>
+                    <option value="Charolais">Charolais</option>
+                </select>
+                <div class="invalid-feedback">Por favor selecciona una raza.</div>
+                <div class="valid-feedback">Raza seleccionada</div>
+            </div>
+
+            <div class="col-md-4 animate_animated animatefadeInUp animate_delay-2s">
+                <label for="edadMeses" class="form-label">
+                    <i class="fas fa-birthday-cake"></i> Edad (meses)
+                </label>
+                <div class="input-group">
+                    <input type="number" th:field="*{edadMeses}" class="form-control" id="edadMeses" min="1" placeholder="0" required>
+                    <i class="fas fa-calendar-alt input-icon"></i>
+                </div>
+                <div class="invalid-feedback">Edad válida requerida (solo números enteros positivos).</div>
+                <div class="valid-feedback">Edad válida</div>
+            </div>
+
+            <div class="col-md-4 animate_animated animatefadeInUp animate_delay-2s">
+                <label for="pesoKg" class="form-label">
+                    <i class="fas fa-weight"></i> Peso (kg)
+                </label>
+                <div class="input-group">
+                    <input type="number" th:field="*{pesoKg}" class="form-control" id="pesoKg" step="0.01" min="1" placeholder="0.00" required>
+                    <i class="fas fa-balance-scale input-icon"></i>
+                </div>
+                <div class="invalid-feedback">Peso válido requerido (solo números decimales positivos).</div>
+                <div class="valid-feedback">Peso válido</div>
+            </div>
+
+            <div class="col-md-4 animate_animated animatefadeInUp animate_delay-2s">
+                <label for="sexo" class="form-label">
+                    <i class="fas fa-venus-mars"></i> Sexo
+                </label>
+                <select th:field="*{sexo}" class="form-select" id="sexo" required>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
+                <div class="invalid-feedback">Por favor selecciona un sexo.</div>
+                <div class="valid-feedback">Sexo seleccionado</div>
+            </div>
+
+            <div class="col-md-6 animate_animated animatefadeInUp animate_delay-3s">
+                <label for="estadoSalud" class="form-label">
+                    <i class="fas fa-heartbeat"></i> Estado de Salud
+                </label>
+                <select th:field="*{estadoSalud}" class="form-select" id="estadoSalud" required>
+                    <option value="Saludable">Saludable</option>
+                    <option value="Enfermo">Enfermo</option>
+                </select>
+                <div class="invalid-feedback">Por favor selecciona un estado de salud.</div>
+                <div class="valid-feedback">Estado de salud seleccionado</div>
+            </div>
+
+            <div class="col-12 form-actions animate_animated animatefadeInUp animate_delay-4s">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> GUARDAR CAMBIOS
+                </button>
+                <a th:href="@{/ganado/lista}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> VOLVER AL LISTADO
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const edadInput = document.getElementById("edadMeses");
+    const pesoInput = document.getElementById("pesoKg");
+    const nombreInput = document.getElementById("codigoOficial");
+        const formControls = document.querySelectorAll('.form-control, .form-select');
+
+        // Función para validar campos
+        function validarCampo(input, regex, permitirDecimal = false) {
+            input.addEventListener("input", () => {
+                let valor = input.value;
+                let esValido = true;
+
+                if (!regex.test(valor) || parseFloat(valor) <= 0) {
+                    esValido = false;
+                }
+
+                if (esValido) {
+                    input.classList.remove("is-invalid");
+                    input.classList.add("is-valid");
+                } else {
+                    input.classList.remove("is-valid");
+                    input.classList.add("is-invalid");
+                }
+            });
+        }
+
+
+        validarCampo(edadInput, /^\d+$/, false);
+        validarCampo(pesoInput, /^\d*\.?\d{0,2}$/, true);
+
+        // Validación ligera para el código oficial (permite letras, números, guiones y espacios)
+        nombreInput.addEventListener("input", () => {
+            nombreInput.value = nombreInput.value.replace(/[^A-Za-z0-9\-\s]/g, '');
+
+            if (nombreInput.value.length > 0) {
+                nombreInput.classList.remove("is-invalid");
+                nombreInput.classList.add("is-valid");
+            } else {
+                nombreInput.classList.remove("is-valid");
+                nombreInput.classList.add("is-invalid");
+            }
+        });
+
+
+        formControls.forEach(control => {
+            if (control.tagName === 'SELECT') {
+                control.addEventListener('change', function() {
+                    if (this.value) {
+                        this.classList.remove("is-invalid");
+                        this.classList.add("is-valid");
+                    } else {
+                        this.classList.remove("is-valid");
+                        this.classList.add("is-invalid");
+                    }
+                });
+            }
+        });
+
+
+        document.querySelectorAll('.btn, .card-form').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                this.style.transform = this.style.transform || 'translateY(0)';
+            });
+
+            element.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
+</body>
+</html>

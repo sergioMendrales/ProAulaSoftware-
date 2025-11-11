@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión - Sistema Ganadero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Tipografía profesional -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.7;
+            font-weight: 400;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        /* Header simple para login */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1a331a;
+            text-decoration: none;
+        }
+
+        .login-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 50px;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid #f0f0f0;
+            margin-top: 80px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-title {
+            color: #1a331a;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .login-subtitle {
+            color: #495057;
+            font-size: 1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: #1a1a1a;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1a331a;
+            box-shadow: 0 0 0 3px rgba(26, 51, 26, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #adb5bd;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 16px;
+            background: #1a331a;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #142814;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 51, 26, 0.2);
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 15px 20px;
+            }
+
+            .login-container {
+                padding: 30px 25px;
+                margin-top: 60px;
+            }
+
+            .login-title {
+                font-size: 1.7em;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-container {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+<!-- Header simple para login -->
+<div class="top-header">
+    <a href="/" class="logo">SISTEMA GANADERO</a>
+</div>
+
+<div class="login-container">
+    <div class="login-header">
+        <h1 class="login-title">INICIAR SESIÓN</h1>
+        <p class="login-subtitle">Accede a tu cuenta para gestionar tu operación ganadera</p>
+    </div>
+
+    <form method="post" th:action="@{/login}">
+        <div class="form-group">
+            <label for="username" class="form-label">Correo Electrónico</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="tuemail@ejemplo.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Ingresa tu contraseña" required>
+        </div>
+
+        <div class="form-group">
+            <label for="loginAs" class="form-label">Ingresar como</label>
+            <select id="loginAs" name="loginAs" class="form-control">
+                <option value="GANADERO">Ganadero</option>
+                <option value="VETERINARIO">Veterinario</option>
+            </select>
+            <small style="color:var(--muted);display:block;margin-top:6px">Selecciona si quieres acceder con la vista de Ganadero o Veterinario (tu rol debe coincidir con la cuenta).</small>
+        </div>
+
+        <button type="submit" class="btn">INGRESAR AL SISTEMA</button>
+    </form>
+
+    <div th:if="${param.error}" class="message error">
+        <span th:switch="${param.error}">
+            <span th:case="'roleMismatch'">Acceso denegado: la cuenta no tiene el rol seleccionado.</span>
+            <span th:case="*">Usuario o contraseña incorrectos</span>
+        </span>
+    </div>
+
+    <div th:if="${param.logout}" class="message success">
+        Sesión cerrada correctamente
+    </div>
+
+    <div class="login-footer">
+        Sistema Ganadero &copy; 2025 - Gestión profesional para ganaderos
+    </div>
+</div>
+</body>
+</html>

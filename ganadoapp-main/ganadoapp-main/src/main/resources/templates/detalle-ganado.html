@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Ganado - Sistema Ganadero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Fuentes e iconos -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        :root {
+            --brand-900: #0f2a0f;
+            --brand-700: #1a331a;
+            --brand-500: #2a6b2a;
+            --brand-300: #4a9c4a;
+            --brand-100: #e9f6ea;
+            --muted: #6b7280;
+            --surface: #ffffff;
+            --accent: #e9f6ea;
+            --shadow-sm: 0 2px 8px rgba(15, 42, 15, 0.06);
+            --shadow-md: 0 4px 20px rgba(15, 42, 15, 0.08);
+            --shadow-lg: 0 10px 30px rgba(15, 42, 15, 0.12);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f9f5 0%, #e8f4e8 100%);
+            color: var(--brand-900);
+            line-height: 1.7;
+            font-weight: 400;
+            min-height: 100vh;
+        }
+
+        /* Header fijo consistente */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            height: 70px;
+            border-bottom: 1px solid rgba(15, 42, 15, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: translateY(-1px);
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-900));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+            margin-right: 12px;
+            box-shadow: 0 4px 12px rgba(42, 107, 42, 0.3);
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--brand-900);
+            letter-spacing: 0.5px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--brand-900);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--brand-100);
+            border-radius: 20px;
+        }
+
+        .user-name i {
+            color: var(--brand-500);
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--brand-500);
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: 2px solid var(--brand-500);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: var(--brand-500);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px 40px;
+        }
+
+        /* Tarjeta principal mejorada */
+        .card-custom {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(15, 42, 15, 0.05);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--brand-500), var(--brand-300));
+        }
+
+        .card-custom:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .animal-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-900));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 20px rgba(42, 107, 42, 0.3);
+        }
+
+        .header-section h1 {
+            color: var(--brand-900);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header-section .subtitle {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        /* Información del ganado */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            background: var(--brand-100);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: var(--transition);
+            border: 1px solid rgba(42, 107, 42, 0.1);
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-card i {
+            font-size: 1.5rem;
+            color: var(--brand-500);
+            margin-bottom: 12px;
+        }
+
+        .info-card .label {
+            font-size: 0.9rem;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card .value {
+            font-size: 1.3rem;
+            color: var(--brand-900);
+            font-weight: 700;
+        }
+
+        /* Estado de salud con badge */
+        .health-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .health-status.saludable {
+            background: #e9f6ea;
+            color: var(--brand-700);
+            border: 1px solid rgba(42, 107, 42, 0.2);
+        }
+
+        .health-status.enfermo {
+            background: #fff2f2;
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        /* Sección de vacunas */
+        .vaccines-section {
+            margin-top: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(15, 42, 15, 0.1);
+        }
+
+        .section-header h2 {
+            color: var(--brand-900);
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-vaccine-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: var(--brand-500);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .add-vaccine-btn:hover {
+            background: var(--brand-700);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Tabla de vacunas mejorada */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .vaccine-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .vaccine-table th {
+            background: linear-gradient(135deg, var(--brand-900), var(--brand-700));
+            color: white;
+            font-weight: 600;
+            text-align: left;
+            padding: 18px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .vaccine-table th i {
+            margin-right: 8px;
+            opacity: 0.9;
+        }
+
+        .vaccine-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e9ecef;
+            color: var(--brand-900);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .vaccine-table tr {
+            transition: var(--transition);
+        }
+
+        .vaccine-table tr:not(:last-child) {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .vaccine-table tr:hover {
+            background-color: var(--brand-100);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 12px;
+            min-width: auto;
+            border: 2px solid;
+            background: transparent;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .btn-edit {
+            color: #d97706;
+            border-color: #d97706;
+        }
+
+        .btn-edit:hover {
+            background: #d97706;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-delete {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Estados vacíos */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            color: var(--brand-300);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 12px;
+            color: var(--muted);
+        }
+
+        .empty-state p {
+            margin-bottom: 25px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Botones de acción */
+        .action-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(15, 42, 15, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--muted);
+            border: 2px solid var(--muted);
+        }
+
+        .btn-secondary:hover {
+            background: var(--muted);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #e9a130, #d2912a);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.2);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #d2912a, #b87920);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 12px 20px;
+            }
+
+            .logo-text {
+                font-size: 16px;
+            }
+
+            .user-menu {
+                gap: 12px;
+            }
+
+            .container {
+                padding: 120px 15px 30px;
+            }
+
+            .card-custom {
+                padding: 25px;
+            }
+
+            .header-section h1 {
+                font-size: 2rem;
+            }
+
+            .animal-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .action-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-sm {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .user-name span {
+                display: none;
+            }
+        }
+
+        /* Animaciones personalizadas */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-header">
+    <a href="/" class="logo">
+        <div class="logo-icon">SG</div>
+        <div class="logo-text">SISTEMA GANADERO</div>
+    </a>
+    <div class="user-menu">
+        <div sec:authorize="isAuthenticated()">
+            <span class="user-name"><i class="fas fa-user-circle"></i> <span th:text="${#authentication.name}">Usuario</span></span>
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> CERRAR SESIÓN</a>
+        </div>
+        <div sec:authorize="!isAuthenticated()">
+            <a href="/login" class="logout-btn"><i class="fas fa-sign-out-alt"></i> INICIAR SESIÓN</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card-custom animate_animated animate_fadeIn">
+        <div class="header-section">
+            <div class="animal-icon">
+                <i class="fas fa-cow"></i>
+            </div>
+            <h1>DETALLE DE GANADO</h1>
+            <p class="subtitle">Información completa del animal: <span th:text="${ganado.codigoOficial}" class="fw-bold"></span></p>
+        </div>
+
+        <!-- Mensajes flash: éxito / error al guardar vacuna -->
+        <div th:if="${mensaje}" style="margin-bottom:18px;" class="animate_animated animate_fadeIn">
+            <div th:classappend="${tipoMensaje} == 'success' ? 'date-info' : 'date-info'" 
+                 th:style="${tipoMensaje} == 'success' ? 'border-left:3px solid #16a34a; background:#e6ffed; color:#065f46; padding:12px; border-radius:8px;' : 'border-left:3px solid #dc2626; background:#fff2f2; color:#7f1d1d; padding:12px; border-radius:8px;'">
+                <i th:class="${tipoMensaje} == 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'" style="margin-right: 8px;"></i>
+                <strong th:text="${tipoMensaje} == 'success' ? 'Éxito:' : 'Error:'"></strong>
+                <span th:text="${mensaje}" style="margin-left:8px"></span>
+            </div>
+        </div>
+
+
+        <div class="info-grid">
+            <div class="info-card animate_animated animate_fadeInUp">
+                <i class="fas fa-dna"></i>
+                <div class="label">Raza</div>
+                <div class="value" th:text="${ganado.raza}">Raza</div>
+            </div>
+
+            <div class="info-card animate_animated animatefadeInUp animate_delay-1s">
+                <i class="fas fa-birthday-cake"></i>
+                <div class="label">Edad</div>
+                <div class="value" th:text="${ganado.edadMeses} + ' meses'">Edad</div>
+            </div>
+
+            <div class="info-card animate_animated animatefadeInUp animate_delay-2s">
+                <i class="fas fa-weight"></i>
+                <div class="label">Peso</div>
+                <div class="value" th:text="${ganado.pesoKg} + ' kg'">Peso</div>
+            </div>
+
+            <div class="info-card animate_animated animatefadeInUp animate_delay-3s">
+                <i class="fas fa-venus-mars"></i>
+                <div class="label">Sexo</div>
+                <div class="value" th:text="${ganado.sexo}">Sexo</div>
+            </div>
+
+            <div class="info-card animate_animated animatefadeInUp animate_delay-4s">
+                <i class="fas fa-heartbeat"></i>
+                <div class="label">Estado de Salud</div>
+                <div class="value">
+                    <span th:classappend="${ganado.estadoSalud == 'Saludable'} ? 'health-status saludable' : 'health-status enfermo'">
+                        <i th:if="${ganado.estadoSalud == 'Saludable'}" class="fas fa-check-circle"></i>
+                        <i th:if="${ganado.estadoSalud == 'Enfermo'}" class="fas fa-exclamation-triangle"></i>
+                        <span th:text="${ganado.estadoSalud}"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="vaccines-section">
+            <div class="section-header">
+                <h2><i class="fas fa-syringe"></i> REGISTRO DE VACUNAS</h2>
+                <a th:href="@{'/vacuna/registrar?codigoGanado=' + ${ganado.id}}" class="add-vaccine-btn">
+                    <i class="fas fa-plus-circle"></i> AGREGAR VACUNA
+                </a>
+            </div>
+
+            <div class="table-container">
+                <table class="vaccine-table">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-tag"></i> Nombre</th>
+                        <th><i class="fas fa-calendar-check"></i> Fecha de Aplicación</th>
+                        <th><i class="fas fa-calendar-day"></i> Próxima Dosis</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="v : ${vacunas}" class="animate-fade-in">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-syringe" style="color: var(--brand-500);"></i>
+                                <span th:text="${v.nombre}"></span>
+                            </div>
+                        </td>
+                        <td th:text="${v.fechaAplicacion}"></td>
+                            <td th:text="${v.proximaAplicacionFormateada}"></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:if="${mostrarAccionesEdicion}" th:href="@{'/vacuna/editar/' + ${v.id}}" class="btn-sm btn-edit" title="Editar vacuna">
+                                    <i class="fas fa-edit"></i> EDITAR
+                                </a>
+                                    <a th:if="${mostrarAccionesEdicion}" th:href="@{'/vacuna/eliminar/' + ${v.id} + '/' + ${ganado.id}}"
+                                   class="btn-sm btn-delete"
+                                   onclick="return confirm('¿Estás seguro de eliminar esta vacuna?');"
+                                   title="Eliminar vacuna">
+                                    <i class="fas fa-trash-alt"></i> ELIMINAR
+                                    </a>
+                                    <a th:if="!${mostrarAccionesEdicion}" th:href="@{'/vacuna/eliminar/' + ${v.id} + '/' + ${ganado.id}}"
+                                       class="btn-sm btn-delete"
+                                       onclick="return confirm('¿Estás seguro de eliminar esta vacuna?');"
+                                       title="Eliminar vacuna">
+                                        <i class="fas fa-trash-alt"></i> ELIMINAR
+                                    </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${vacunas.isEmpty()}">
+                        <td colspan="4" class="empty-state">
+                            <i class="fas fa-syringe"></i>
+                            <h3>No hay vacunas registradas</h3>
+                            <p>Este animal no tiene vacunas registradas en el sistema</p>
+                            <a th:href="@{'/vacuna/registrar?codigoGanado=' + ${ganado.id}}" class="add-vaccine-btn">
+                                <i class="fas fa-plus-circle"></i> Registrar primera vacuna
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="action-section animate_animated animate_fadeInUp">
+            <a href="/ganado/lista" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> VOLVER AL LISTADO
+            </a>
+            <a th:if="${mostrarAccionesEdicion}" th:href="@{'/ganado/editar/' + ${ganado.id}}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> EDITAR GANADO
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    document.querySelectorAll('.btn, .card-custom, .info-card').forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            this.style.transform = this.style.transform || 'translateY(0)';
+        });
+
+        element.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+</body>
+</html>

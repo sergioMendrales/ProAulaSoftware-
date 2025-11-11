@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Vacuna - Veterinario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Usamos estilos similares al formulario general */
+        :root { --brand-900:#0f2a0f; --brand-500:#2a6b2a; --muted:#6b7280; --surface:#ffffff; --accent:#e9f6ea; --shadow:0 10px 30px rgba(15,42,15,0.08); --radius:8px }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Montserrat',sans-serif}
+        body{background:#f5f9f5;color:var(--brand-900)}
+        .container{max-width:700px;margin:0 auto;padding:100px 20px 40px}
+        .form-container{background:var(--surface);padding:30px;border-radius:8px;box-shadow:var(--shadow);border:1px solid rgba(15,42,15,0.05)}
+        label{display:block;margin-bottom:8px;font-weight:600}
+        .form-select,.form-control{width:100%;padding:10px;border-radius:6px;border:1.5px solid #e2e8f0;background:#f9fafb}
+        .button-group{display:flex;gap:12px;margin-top:20px}
+        .btn{flex:1;padding:12px;border-radius:8px;border:none}
+        .btn-primary{background:#2a6b2a;color:white}
+        .btn-secondary{background:transparent;border:1px solid var(--muted);color:var(--muted)}
+        .date-info{background:var(--accent);padding:10px;border-radius:6px;border-left:3px solid #1e40af;margin-top:10px}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h2>Registrar Vacuna (Veterinario)</h2>
+        <p style="color:var(--muted);margin-bottom:12px">Solo se muestran los animales del ganadero que estás revisando.</p>
+
+        <form th:action="@{/vacuna/guardar}" th:object="${vacuna}" method="post">
+            <div>
+                <label for="ganado" class="required">Seleccione el Ganado</label>
+                <select id="ganado" name="codigoGanado" class="form-select" required>
+                    <option value="">-- Seleccione un animal --</option>
+                    <option th:each="g : ${ganados}" th:value="${g.id}"
+                            th:attr="data-edad-meses=${g.edadMeses},data-peso-kg=${g.pesoKg},data-sexo=${g.sexo}"
+                            th:text="${g.codigoOficial + ' (' + g.raza + ')'}"
+                            th:selected="${selectedGanadoId != null} ? ${g.id == selectedGanadoId} : false">Ganado</option>
+                </select>
+            </div>
+
+            <div id="ganadoInfo" style="margin-top:12px;display:none;padding:10px;background:#f0f9ff;border-left:3px solid #1e40af;border-radius:4px">
+                <p><strong>Edad:</strong> <span id="edadGanado">-</span> meses</p>
+                <p><strong>Peso:</strong> <span id="pesoGanado">-</span> kg</p>
+                <p><strong>Sexo:</strong> <span id="sexoGanado">-</span></p>
+            </div>
+
+            <div style="margin-top:16px">
+                <label for="nombre" class="required">Nombre de la Vacuna</label>
+                <select id="nombre" th:field="*{nombre}" class="form-select" required>
+                    <option value="">-- Seleccione una vacuna --</option>
+                    <option value="Fiebre Aftosa">Fiebre Aftosa</option>
+                    <option value="Rabia">Rabia</option>
+                    <option value="Brucelosis">Brucelosis</option>
+                    <option value="Carbunco">Carbunco</option>
+                    <option value="Leptospirosis">Leptospirosis</option>
+                </select>
+            </div>
+
+            <div style="margin-top:12px">
+                <label for="fechaAplicacion" class="required">Fecha de Aplicación</label>
+                <input type="date" id="fechaAplicacion" th:field="*{fechaAplicacion}" class="form-control" required/>
+            </div>
+
+            <!-- Aplicado por (veterinario) -->
+            <div th:if="${currentUserId != null}" style="margin-top:12px">
+                <input type="hidden" name="aplicadoPorUsuarioId" th:value="${currentUserId}" />
+                <div style="font-size:13px;color:var(--muted);margin-top:6px">Aplicado por: <strong th:text="${currentUserName}">Veterinario</strong></div>
+            </div>
+
+            <div class="date-info" style="margin-top:12px">
+                <strong>Nota:</strong> La próxima dosis será calculada automáticamente según la vacuna seleccionada.
+                <div style="margin-top:8px">
+                    <p><strong>Vacuna:</strong> <span id="vacunaSeleccionada">-</span></p>
+                    <p><strong>Próxima dosis:</strong> <span id="proximaDosisFecha">-</span></p>
+                    <p><strong>Edad mínima:</strong> <span id="edadMinima">-</span></p>
+                    <p><strong>Peso mínimo:</strong> <span id="pesoMinimo">-</span></p>
+                    <p><strong>Requisitos adicionales:</strong> <span id="reqAdicionales">-</span></p>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Guardar Registro de Vacuna</button>
+                <a th:href="@{/veterinario/ganadero/{id}(id=${ganaderoId})}" class="btn btn-secondary">Cancelar y Volver</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ganadoSelect = document.getElementById('ganado');
+        const vacunaSelect = document.getElementById('nombre');
+        const fechaAplicacionInput = document.getElementById('fechaAplicacion');
+        const vacunaSeleccionada = document.getElementById('vacunaSeleccionada');
+        const proximaDosisFecha = document.getElementById('proximaDosisFecha');
+        const edadMinimaEl = document.getElementById('edadMinima');
+        const pesoMinimoEl = document.getElementById('pesoMinimo');
+        const reqAdicionalesEl = document.getElementById('reqAdicionales');
+
+        const ganadoInfoDiv = document.getElementById('ganadoInfo');
+        const edadGanadoEl = document.getElementById('edadGanado');
+        const pesoGanadoEl = document.getElementById('pesoGanado');
+        const sexoGanadoEl = document.getElementById('sexoGanado');
+
+        const vacunaRules = {
+            'fiebre aftosa': { minMonths: null, minWeight: null, nextType: 'months', nextAmount: 6, note: '' },
+            'fiebreaftosa': { minMonths: null, minWeight: null, nextType: 'months', nextAmount: 6, note: '' },
+            'brucelosis': { minMonths: null, maxMonths: null, minWeight: null, nextType: 'years', nextAmount: 1, note: 'Registro sujeto a criterios veterinarios' },
+            'rabia': { minMonths: null, minWeight: null, nextType: 'years', nextAmount: 1, note: '' },
+            'rabia bovina': { minMonths: null, minWeight: null, nextType: 'years', nextAmount: 1, note: '' },
+            'carbunco': { minMonths: null, minWeight: 50, nextType: 'years', nextAmount: 1, note: 'Requiere animales ≥50 kg' },
+            'carbunco sintomatico': { minMonths: null, minWeight: 50, nextType: 'years', nextAmount: 1, note: 'Requiere animales ≥50 kg' },
+            'leptospirosis': { minMonths: null, minWeight: 30, nextType: 'months', nextAmount: 6, note: 'Requiere peso mínimo 30 kg en terneros' }
+        };
+
+        function formatDate(d) {
+            try { return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch (e) { return ''; }
+        }
+
+        function actualizarDatosGanado() {
+            const selectedOption = ganadoSelect.options[ganadoSelect.selectedIndex];
+            if (!selectedOption || selectedOption.value === '') { ganadoInfoDiv.style.display = 'none'; return; }
+            const edad = selectedOption.getAttribute('data-edad-meses');
+            const peso = selectedOption.getAttribute('data-peso-kg');
+            const sexo = selectedOption.getAttribute('data-sexo');
+            edadGanadoEl.textContent = edad ? edad : '-';
+            pesoGanadoEl.textContent = peso ? peso : '-';
+            sexoGanadoEl.textContent = sexo ? sexo : '-';
+            ganadoInfoDiv.style.display = 'block';
+        }
+
+        function calcularProximaDosis() {
+            const vacuna = (vacunaSelect.value || '').trim();
+            const fecha = fechaAplicacionInput.value;
+            vacunaSeleccionada.textContent = vacuna || '-';
+            let rule = vacunaRules[vacuna.toLowerCase()] || vacunaRules[vacuna.toLowerCase().replace(/\s+/g, '')];
+            if (!rule) {
+                edadMinimaEl.textContent = 'Ninguno';
+                pesoMinimoEl.textContent = 'Ninguno';
+                reqAdicionalesEl.textContent = 'Ninguno';
+            } else {
+                edadMinimaEl.textContent = (rule.minMonths ? rule.minMonths + ' meses' : 'Ninguno') + (rule.maxMonths ? ' (hasta ' + rule.maxMonths + ' meses)' : '');
+                pesoMinimoEl.textContent = (rule.minWeight ? rule.minWeight + ' kg' : 'Ninguno');
+                reqAdicionalesEl.textContent = rule.note || 'Ninguno';
+            }
+            if (!vacuna || !fecha) { proximaDosisFecha.textContent = '-'; return; }
+            const fechaAplicacion = new Date(fecha + 'T00:00:00');
+            let proximaFecha = null;
+            if (rule && rule.nextType === 'months') { proximaFecha = new Date(fechaAplicacion); proximaFecha.setMonth(proximaFecha.getMonth() + rule.nextAmount); }
+            else if (rule && rule.nextType === 'years') { proximaFecha = new Date(fechaAplicacion); proximaFecha.setFullYear(proximaFecha.getFullYear() + rule.nextAmount); }
+            else { proximaFecha = new Date(fechaAplicacion); proximaFecha.setFullYear(proximaFecha.getFullYear() + 1); }
+            proximaDosisFecha.textContent = formatDate(proximaFecha);
+        }
+
+        ganadoSelect.addEventListener('change', actualizarDatosGanado);
+        vacunaSelect.addEventListener('change', calcularProximaDosis);
+        fechaAplicacionInput.addEventListener('change', calcularProximaDosis);
+
+        actualizarDatosGanado();
+        calcularProximaDosis();
+    });
+</script>
+</body>
+</html>

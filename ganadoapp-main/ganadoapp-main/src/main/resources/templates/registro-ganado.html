@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Ganado - Sistema Ganadero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Fuente Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-900: #0f2a0f;
+            --brand-700: #1a331a;
+            --brand-500: #2a6b2a;
+            --brand-300: #4a9c4a;
+            --muted: #6b7280;
+            --surface: #ffffff;
+            --accent: #e9f6ea;
+            --shadow: 0 10px 30px rgba(15, 42, 15, 0.08);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: #f5f9f5;
+            color: var(--brand-900);
+            background-image:
+                    radial-gradient(circle at 10% 20%, rgba(233, 246, 234, 0.3) 0%, transparent 20%),
+                    radial-gradient(circle at 90% 80%, rgba(233, 246, 234, 0.3) 0%, transparent 20%);
+        }
+
+        /* Header fijo */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-900));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--brand-900);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--brand-900);
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: transparent;
+            color: var(--brand-500);
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: 1.5px solid var(--brand-500);
+        }
+
+        .logout-btn:hover {
+            background: var(--brand-500);
+            color: white;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 100px 20px 40px;
+        }
+
+        .form-container {
+            background-color: var(--surface);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(15, 42, 15, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-500), var(--brand-300));
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+        }
+
+        .form-title {
+            color: var(--brand-900);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .form-title::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 24px;
+            background-color: var(--brand-500);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 10h6M9 14h6M9 18h6M8 4v16l4-2 4 2V4'/%3E%3Crect x='4' y='4' width='16' height='16' rx='2'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 10h6M9 14h6M9 18h6M8 4v16l4-2 4 2V4'/%3E%3Crect x='4' y='4' width='16' height='16' rx='2'/%3E%3C/svg%3E");
+        }
+
+        .form-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--brand-900);
+            font-size: 14px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #dc2626;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 15px;
+            color: var(--brand-900);
+            background-color: #f9fafb;
+            transition: var(--transition);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .form-control:focus {
+            border-color: var(--brand-300);
+            outline: none;
+            background-color: var(--surface);
+            box-shadow: 0 0 0 3px rgba(74, 156, 74, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 15px;
+            color: var(--brand-900);
+            background-color: #f9fafb;
+            transition: var(--transition);
+            font-family: 'Montserrat', sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .form-select:focus {
+            border-color: var(--brand-300);
+            outline: none;
+            background-color: var(--surface);
+            box-shadow: 0 0 0 3px rgba(74, 156, 74, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 24px;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(42, 107, 42, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--muted);
+            border: 1.5px solid var(--muted);
+        }
+
+        .btn-secondary:hover {
+            background: var(--muted);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(107, 114, 128, 0.2);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--brand-900);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 16px;
+            height: 16px;
+            background-color: var(--brand-500);
+        }
+
+        .section-title:nth-child(1)::before {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+        }
+
+        .section-title:nth-child(2)::before {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 15 2 2 4-4'/%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 15 2 2 4-4'/%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3C/svg%3E");
+        }
+
+        .section-title:nth-child(3)::before {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 2v6h6'/%3E%3Cpath d='M16 13H8'/%3E%3Cpath d='M16 17H8'/%3E%3Cpath d='M10 9H8'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 2v6h6'/%3E%3Cpath d='M16 13H8'/%3E%3Cpath d='M16 17H8'/%3E%3Cpath d='M10 9H8'/%3E%3C/svg%3E");
+        }
+
+        .form-field-icon {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            width: 18px;
+            height: 18px;
+            background-color: var(--muted);
+            opacity: 0.6;
+        }
+
+        .form-field-icon.name {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+        }
+
+        .form-field-icon.number {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='9' x2='20' y2='9'/%3E%3Cline x1='4' y1='15' x2='20' y2='15'/%3E%3Cline x1='10' y1='3' x2='8' y2='21'/%3E%3Cline x1='16' y1='3' x2='14' y2='21'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='9' x2='20' y2='9'/%3E%3Cline x1='4' y1='15' x2='20' y2='15'/%3E%3Cline x1='10' y1='3' x2='8' y2='21'/%3E%3Cline x1='16' y1='3' x2='14' y2='21'/%3E%3C/svg%3E");
+        }
+
+        .form-field-icon.weight {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 15 2 2 4-4'/%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 15 2 2 4-4'/%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3C/svg%3E");
+        }
+
+        .success-animation {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            z-index: 1001;
+        }
+
+        .success-animation.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 12px 20px;
+            }
+
+            .user-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .container {
+                padding: 120px 15px 30px;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .form-title {
+                font-size: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .form-field-icon {
+                display: none;
+            }
+        }
+    </style>
+
+    <script>
+        function soloLetras(input) {
+            input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        }
+
+        function soloEnterosPositivos(input) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+        }
+
+        function soloDecimalesPositivos(input) {
+            input.value = input.value.replace(/[^0-9.]/g, '');
+        }
+
+        function validarFormulario() {
+            const selects = ["raza", "sexo", "estadoSalud"];
+            for (let id of selects) {
+                const valor = document.getElementById(id).value;
+                if (!valor) {
+                    alert("Por favor, seleccione todas las opciones del formulario.");
+                    return false;
+                }
+            }
+
+            // Simular animación de éxito
+            const successAnimation = document.getElementById('successAnimation');
+            if (successAnimation) {
+                successAnimation.classList.add('show');
+                setTimeout(() => {
+                    successAnimation.classList.remove('show');
+                }, 2000);
+            }
+
+            return true;
+        }
+
+        // Mostrar mensaje de éxito si viene de un guardado exitoso
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 90px;
+                    right: 20px;
+                    background-color: var(--brand-500);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: var(--radius);
+                    box-shadow: var(--shadow);
+                    z-index: 1000;
+                    font-weight: 500;
+                `;
+                toast.textContent = 'Registro guardado exitosamente';
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 3000);
+            }
+        });
+    </script>
+</head>
+<body>
+<!-- Header fijo -->
+<div class="top-header">
+    <a href="/" class="logo">
+        <div class="logo-icon">SG</div>
+        <div class="logo-text">SISTEMA GANADERO</div>
+    </a>
+    <div class="user-menu">
+        <div sec:authorize="isAuthenticated()">
+            <span class="user-name" th:text="${#authentication.name}">Usuario</span>
+            <a href="/logout" class="logout-btn">CERRAR SESIÓN</a>
+        </div>
+        <div sec:authorize="!isAuthenticated()">
+            <a href="/login" class="logout-btn">INICIAR SESIÓN</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="form-container">
+        <div class="form-header">
+            <h1 class="form-title">Registro de Ganado</h1>
+            <p class="form-subtitle">Complete la información del animal para agregarlo al sistema</p>
+        </div>
+
+        <form th:action="@{/ganado/guardar}" th:object="${ganado}" method="post" onsubmit="return validarFormulario()">
+            <div class="form-section">
+                <h3 class="section-title">Información Básica</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="codigoOficial" class="required">Código oficial / Marca</label>
+                        <input type="text" th:field="*{codigoOficial}" class="form-control" id="codigoOficial"
+                               placeholder="Ej: MARCA-00-07-25-001 (si lo dejas en blanco se generará automáticamente)"
+                               required>
+                        <div class="form-field-icon name"></div>
+                        <span class="input-hint">Ingrese la marca o código oficial. Si se deja vacío, el sistema generará un código.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="raza" class="required">Raza</label>
+                        <select th:field="*{raza}" class="form-select" id="raza" required>
+                            <option value="">-- Seleccione una raza --</option>
+                            <option value="Holstein">Holstein</option>
+                            <option value="Brahman">Brahman</option>
+                            <option value="Angus">Angus</option>
+                            <option value="Simmental">Simmental</option>
+                            <option value="Jersey">Jersey</option>
+                            <option value="Hereford">Hereford</option>
+                            <option value="Limousin">Limousin</option>
+                            <option value="Charolais">Charolais</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Características Físicas</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edadMeses" class="required">Edad (meses)</label>
+                        <input type="text" th:field="*{edadMeses}" class="form-control" id="edadMeses"
+                               placeholder="Ej: 12" required oninput="soloEnterosPositivos(this)">
+                        <div class="form-field-icon number"></div>
+                        <span class="input-hint">Solo números enteros positivos (meses)</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pesoKg" class="required">Peso (kg)</label>
+                        <input type="text" th:field="*{pesoKg}" class="form-control" id="pesoKg"
+                               placeholder="Ej: 250.5" required oninput="soloDecimalesPositivos(this)">
+                        <div class="form-field-icon weight"></div>
+                        <span class="input-hint">Use punto para decimales (ej: 250.5)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Información Adicional</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="sexo" class="required">Sexo</label>
+                        <select th:field="*{sexo}" class="form-select" id="sexo" required>
+                            <option value="">-- Seleccione --</option>
+                            <option value="Macho">Macho</option>
+                            <option value="Hembra">Hembra</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estadoSalud" class="required">Estado de Salud</label>
+                        <select th:field="*{estadoSalud}" class="form-select" id="estadoSalud" required>
+                            <option value="">-- Seleccione --</option>
+                            <option value="Saludable">Saludable</option>
+                            <option value="Enfermo">Enfermo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    Guardar Registro
+                </button>
+                <a th:href="@{/ganado/lista}" class="btn btn-secondary">
+                    Cancelar y Volver
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="successAnimation" class="success-animation">
+    <h3>¡Registro Exitoso!</h3>
+    <p>El animal ha sido registrado correctamente en el sistema.</p>
+</div>
+</body>
+</html>

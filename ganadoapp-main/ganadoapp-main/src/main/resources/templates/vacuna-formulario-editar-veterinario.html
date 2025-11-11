@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Vacuna - Veterinario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-900:#0f2a0f; --brand-500:#2a6b2a; --muted:#6b7280; --surface:#ffffff; --accent:#e9f6ea; --shadow:0 10px 30px rgba(15,42,15,0.08); --radius:8px }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Montserrat',sans-serif}
+        body{background:#f5f9f5;color:var(--brand-900)}
+        .container{max-width:700px;margin:0 auto;padding:100px 20px 40px}
+        .form-container{background:var(--surface);padding:30px;border-radius:8px;box-shadow:var(--shadow);border:1px solid rgba(15,42,15,0.05)}
+        h2{margin-bottom:8px;font-size:24px}
+        .form-subtitle{color:var(--muted);margin-bottom:20px;font-size:14px}
+        label{display:block;margin-top:15px;font-weight:600;color:var(--brand-900)}
+        select,.form-control{width:100%;padding:10px;margin-top:5px;border-radius:6px;border:1.5px solid #e2e8f0;background:#f9fafb;font-family:'Montserrat',sans-serif}
+        select:focus,.form-control:focus{border-color:var(--brand-500);outline:none;background:#fff}
+        .readonly-field{background:#f0f0f0;cursor:not-allowed;color:var(--muted)}
+        .info-box{background:var(--accent);padding:12px;border-left:3px solid var(--brand-500);border-radius:4px;margin-top:10px;font-size:14px}
+        .button-group{display:flex;gap:12px;margin-top:30px}
+        .btn{flex:1;padding:12px;border-radius:8px;border:none;font-weight:600;cursor:pointer}
+        .btn-primary{background:var(--brand-500);color:white}
+        .btn-primary:hover{background:var(--brand-900);transform:translateY(-2px)}
+        .btn-secondary{background:transparent;border:1.5px solid var(--muted);color:var(--muted)}
+        .btn-secondary:hover{background:var(--muted);color:white}
+        @media (max-width:768px){.container{padding:120px 15px 30px}.button-group{flex-direction:column}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h2>Editar Vacuna</h2>
+        <p class="form-subtitle">Solo veterinarios pueden editar registros de vacunas</p>
+
+        <form th:action="@{/vacuna/actualizar}" th:object="${vacuna}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <!-- Información del veterinario que edita -->
+            <div th:if="${currentUserId != null}" class="info-box">
+                <strong>Editando como:</strong> <span th:text="${currentUserName}">Veterinario</span>
+            </div>
+
+            <!-- Ganado (solo lectura) -->
+            <label for="ganado">Ganado Asociado</label>
+            <select id="ganado" class="readonly-field" disabled>
+                <option th:value="${vacuna.ganadoId}" th:text="${vacuna.codigoGanado}" selected></option>
+            </select>
+            <input type="hidden" name="codigoGanado" th:value="${vacuna.codigoGanado}" />
+
+            <!-- Nombre de vacuna -->
+            <label for="nombre">Nombre de la Vacuna</label>
+            <select id="nombre" th:field="*{nombre}" required>
+                <option value="">Seleccione una vacuna</option>
+                <option value="Fiebre Aftosa">Fiebre Aftosa</option>
+                <option value="Rabia">Rabia</option>
+                <option value="Brucelosis">Brucelosis</option>
+                <option value="Carbunco">Carbunco</option>
+                <option value="Leptospirosis">Leptospirosis</option>
+            </select>
+
+            <!-- Fecha de aplicación -->
+            <label for="fechaAplicacion">Fecha de Aplicación</label>
+            <input type="date" id="fechaAplicacion" th:field="*{fechaAplicacion}" class="form-control" required/>
+
+            <!-- Intervalo -->
+            <label for="intervaloCantidad">Intervalo para próxima dosis</label>
+            <input type="number" id="intervaloCantidad" th:field="*{intervaloCantidad}" class="form-control" min="1" max="365" required placeholder="Ej: 30"/>
+
+            <!-- Unidad de tiempo -->
+            <label for="unidadTiempo">Unidad de Tiempo</label>
+            <select id="unidadTiempo" th:field="*{unidadTiempo}">
+                <option value="dias">Días</option>
+                <option value="semanas">Semanas</option>
+                <option value="meses">Meses</option>
+            </select>
+
+            <!-- Próxima dosis (solo lectura) -->
+            <label for="proximaDosis">Próxima Dosis (calculada automáticamente)</label>
+            <input type="date" id="proximaDosis" th:field="*{proximaDosis}" class="form-control readonly-field" readonly/>
+
+            <!-- Botones -->
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Actualizar Vacuna</button>
+                <a th:href="@{/veterinario/ganado/{id}(id=${vacuna.ganadoId})}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const fechaAplicacion = document.getElementById("fechaAplicacion");
+    const intervalo = document.getElementById("intervaloCantidad");
+    const unidad = document.getElementById("unidadTiempo");
+    const proximaDosis = document.getElementById("proximaDosis");
+
+    function calcularProximaDosis() {
+        const fecha = new Date(fechaAplicacion.value);
+        const cantidad = parseInt(intervalo.value);
+        const unidadTiempo = unidad.value;
+
+        if (!isNaN(fecha.getTime()) && cantidad > 0) {
+            if (unidadTiempo === "dias") {
+                fecha.setDate(fecha.getDate() + cantidad);
+            } else if (unidadTiempo === "semanas") {
+                fecha.setDate(fecha.getDate() + (cantidad * 7));
+            } else if (unidadTiempo === "meses") {
+                fecha.setMonth(fecha.getMonth() + cantidad);
+            }
+            const proxima = fecha.toISOString().split("T")[0];
+            proximaDosis.value = proxima;
+        }
+    }
+
+    fechaAplicacion.addEventListener("change", calcularProximaDosis);
+    intervalo.addEventListener("input", calcularProximaDosis);
+    unidad.addEventListener("change", calcularProximaDosis);
+    window.addEventListener("load", calcularProximaDosis);
+</script>
+</body>
+</html>

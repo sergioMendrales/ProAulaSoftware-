@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Vacuna - Sistema Ganadero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-900: #0f2a0f;
+            --brand-700: #1a331a;
+            --brand-500: #2a6b2a;
+            --brand-300: #4a9c4a;
+            --accent-blue: #1e40af;
+            --accent-orange: #ea580c;
+            --accent-purple: #7c3aed;
+            --muted: #6b7280;
+            --surface: #ffffff;
+            --accent: #e9f6ea;
+            --shadow: 0 10px 30px rgba(15, 42, 15, 0.08);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: #f5f9f5;
+            color: var(--brand-900);
+            background-image:
+                    radial-gradient(circle at 10% 20%, rgba(233, 246, 234, 0.3) 0%, transparent 20%),
+                    radial-gradient(circle at 90% 80%, rgba(233, 246, 234, 0.3) 0%, transparent 20%);
+        }
+
+        /* Header fijo */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-900));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--brand-900);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--brand-900);
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: transparent;
+            color: var(--brand-500);
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: 1.5px solid var(--brand-500);
+        }
+
+        .logout-btn:hover {
+            background: var(--brand-500);
+            color: white;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 100px 20px 40px;
+        }
+
+        .form-container {
+            background-color: var(--surface);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(15, 42, 15, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .form-title {
+            color: var(--brand-900);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .form-title::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 24px;
+            background-color: var(--accent-blue);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+        }
+
+        .form-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--brand-900);
+            font-size: 14px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #dc2626;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 15px;
+            color: var(--brand-900);
+            background-color: #f9fafb;
+            transition: var(--transition);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            background-color: var(--surface);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 15px;
+            color: var(--brand-900);
+            background-color: #f9fafb;
+            transition: var(--transition);
+            font-family: 'Montserrat', sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .form-select:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+            background-color: var(--surface);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            grid-column: 1 / -1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 24px;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--muted);
+            border: 1.5px solid var(--muted);
+        }
+
+        .btn-secondary:hover {
+            background: var(--muted);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(107, 114, 128, 0.2);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--brand-900);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 16px;
+            height: 16px;
+            background-color: var(--accent-blue);
+        }
+
+        .section-title:nth-child(1)::before {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+        }
+
+        .section-title:nth-child(2)::before {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+        }
+
+        .section-title:nth-child(3)::before {
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z'/%3E%3Cline x1='3' y1='6' x2='21' y2='6'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z'/%3E%3Cline x1='3' y1='6' x2='21' y2='6'/%3E%3Cpath d='M16 10a4 4 0 0 1-8 0'/%3E%3C/svg%3E");
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+            display: block;
+        }
+
+        .date-info {
+            background-color: var(--accent);
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            margin-top: 10px;
+            font-size: 14px;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .date-info strong {
+            color: var(--accent-blue);
+        }
+
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 12px 20px;
+            }
+
+            .user-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .container {
+                padding: 120px 15px 30px;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .form-title {
+                font-size: 22px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-header">
+    <a href="/" class="logo">
+        <div class="logo-icon">SG</div>
+        <div class="logo-text">SISTEMA GANADERO</div>
+    </a>
+    <div class="user-menu">
+        <div sec:authorize="isAuthenticated()">
+            <span class="user-name" th:text="${#authentication.name}">Usuario</span>
+            <a href="/logout" class="logout-btn">CERRAR SESIÓN</a>
+        </div>
+        <div sec:authorize="!isAuthenticated()">
+            <a href="/login" class="logout-btn">INICIAR SESIÓN</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="form-container">
+        <div class="form-header">
+            <h1 class="form-title">Registro de Vacuna</h1>
+            <p class="form-subtitle">Complete la información para registrar la aplicación de una vacuna</p>
+        </div>
+
+        <form th:action="@{/vacuna/guardar}" th:object="${vacuna}" method="post">
+            <div class="form-section">
+                <h3 class="section-title">Información del Animal</h3>
+                <div class="form-group">
+                    <label for="ganado" class="required">Seleccione el Ganado</label>
+                    <!-- Enviar el id interno del ganado (no el código oficial). El texto sigue mostrando el código oficial para el usuario. -->
+                    <select id="ganado" name="codigoGanado" class="form-select" required>
+                        <option value="">-- Seleccione un animal --</option>
+            <option th:each="g : ${ganados}" th:value="${g.id}"
+                th:attr="data-edad-meses=${g.edadMeses},data-peso-kg=${g.pesoKg},data-sexo=${g.sexo},data-fecha-nacimiento=${g.fechaNacimiento}"
+                th:text="${g.codigoOficial + ' (' + g.raza + ')'}"
+                th:selected="${selectedGanadoId != null} ? ${g.id == selectedGanadoId} : false">Ganado</option>
+                    </select>
+                </div>
+                
+                <!-- Mostrar peso y edad del ganado seleccionado -->
+                <div id="ganadoInfo" style="margin-top:15px; padding:12px; background:#f0f9ff; border-left:3px solid var(--accent-blue); border-radius:4px; display:none;">
+                    <p style="margin:6px 0; font-size:14px;"><strong>Edad:</strong> <span id="edadGanado">-</span> meses</p>
+                    <p style="margin:6px 0; font-size:14px;"><strong>Peso:</strong> <span id="pesoGanado">-</span> kg</p>
+                    <p style="margin:6px 0; font-size:14px;"><strong>Sexo:</strong> <span id="sexoGanado">-</span></p>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Detalles de la Vacuna</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre" class="required">Nombre de la Vacuna</label>
+                        <select id="nombre" th:field="*{nombre}" class="form-select" required>
+                            <option value="">-- Seleccione una vacuna --</option>
+                            <option value="Fiebre Aftosa">Fiebre Aftosa</option>
+                            <option value="Rabia">Rabia</option>
+                            <option value="Brucelosis">Brucelosis</option>
+                            <option value="Carbunco">Carbunco</option>
+                            <option value="Leptospirosis">Leptospirosis</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fechaAplicacion" class="required">Fecha de Aplicación</label>
+                        <input type="date" id="fechaAplicacion" th:field="*{fechaAplicacion}" class="form-control" required/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Si hay usuario autenticado, lo enviamos oculto para registrar quien aplicó la vacuna -->
+            <div th:if="${currentUserId != null}" style="margin-top:12px">
+                <input type="hidden" name="aplicadoPorUsuarioId" th:value="${currentUserId}" />
+                <div style="font-size:13px;color:var(--muted);margin-top:6px">Aplicado por: <strong th:text="${currentUserName}">Usuario</strong></div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">Programación Automática de Próxima Dosis</h3>
+                <div class="date-info" id="proximaDosisInfo">
+                    <strong>Nota:</strong> La próxima dosis se calculará automáticamente según el tipo de vacuna.
+                    <div id="proximaDosisDetalle" style="margin-top:8px">
+                        <p style="margin:6px 0"><strong>Vacuna:</strong> <span id="vacunaSeleccionada">-</span></p>
+                        <p style="margin:6px 0"><strong>Próxima dosis:</strong> <span id="proximaDosisFecha">-</span></p>
+                        <p style="margin:6px 0"><strong>Edad mínima:</strong> <span id="edadMinima">-</span></p>
+                        <p style="margin:6px 0"><strong>Peso mínimo:</strong> <span id="pesoMinimo">-</span></p>
+                        <p style="margin:6px 0"><strong>Requisitos adicionales:</strong> <span id="reqAdicionales">-</span></p>
+                    </div>
+                    <div style="margin-top:10px">
+                        <em>Reglas mostradas automáticamente según la vacuna seleccionada. Si una vacuna requiere sexo o un rango de edad específico, se mostrará aquí.</em>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    Guardar Registro de Vacuna
+                </button>
+                <a th:href="@{/ganado/lista}" class="btn btn-secondary">
+                    Cancelar y Volver
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ganadoSelect = document.getElementById('ganado');
+        const vacunaSelect = document.getElementById('nombre');
+        const fechaAplicacionInput = document.getElementById('fechaAplicacion');
+        const vacunaSeleccionada = document.getElementById('vacunaSeleccionada');
+        const proximaDosisFecha = document.getElementById('proximaDosisFecha');
+        const edadMinimaEl = document.getElementById('edadMinima');
+        const pesoMinimoEl = document.getElementById('pesoMinimo');
+        const reqAdicionalesEl = document.getElementById('reqAdicionales');
+        
+        // Elementos para mostrar datos del ganado
+        const ganadoInfoDiv = document.getElementById('ganadoInfo');
+        const edadGanadoEl = document.getElementById('edadGanado');
+        const pesoGanadoEl = document.getElementById('pesoGanado');
+        const sexoGanadoEl = document.getElementById('sexoGanado');
+
+        // Reglas derivadas de VacunaService.esAptoParaVacuna y Vacuna.calcularProximaAplicacion
+        const vacunaRules = {
+            'fiebre aftosa': { minMonths: null, minWeight: null, nextType: 'months', nextAmount: 6, note: '' },
+            'fiebreaftosa': { minMonths: null, minWeight: null, nextType: 'months', nextAmount: 6, note: '' },
+            'brucelosis': { minMonths: null, maxMonths: null, minWeight: null, nextType: 'years', nextAmount: 1, note: 'Registro sujeto a criterios veterinarios' },
+            'rabia': { minMonths: null, minWeight: null, nextType: 'years', nextAmount: 1, note: '' },
+            'rabia bovina': { minMonths: null, minWeight: null, nextType: 'years', nextAmount: 1, note: '' },
+            'carbunco': { minMonths: null, minWeight: 50, nextType: 'years', nextAmount: 1, note: 'Requiere animales ≥50 kg' },
+            'carbunco sintomatico': { minMonths: null, minWeight: 50, nextType: 'years', nextAmount: 1, note: 'Requiere animales ≥50 kg' },
+            'leptospirosis': { minMonths: null, minWeight: 30, nextType: 'months', nextAmount: 6, note: 'Requiere peso mínimo 30 kg en terneros' }
+        };
+
+        function formatDate(d) {
+            try {
+                return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            } catch (e) {
+                return '';
+            }
+        }
+        
+        // Mostrar datos del ganado seleccionado
+        function actualizarDatosGanado() {
+            const selectedOption = ganadoSelect.options[ganadoSelect.selectedIndex];
+            
+            if (!selectedOption || selectedOption.value === '') {
+                ganadoInfoDiv.style.display = 'none';
+                return;
+            }
+            
+            const edad = selectedOption.getAttribute('data-edad-meses');
+            const peso = selectedOption.getAttribute('data-peso-kg');
+            const sexo = selectedOption.getAttribute('data-sexo');
+            
+            if (edad || peso || sexo) {
+                edadGanadoEl.textContent = edad ? edad : '-';
+                pesoGanadoEl.textContent = peso ? peso : '-';
+                sexoGanadoEl.textContent = sexo ? sexo : '-';
+                ganadoInfoDiv.style.display = 'block';
+            }
+        }
+
+        function calcularProximaDosis() {
+            const vacuna = (vacunaSelect.value || '').trim();
+            const fecha = fechaAplicacionInput.value;
+
+            vacunaSeleccionada.textContent = vacuna || '-';
+
+            // Mostrar reglas estáticas si no hay fecha
+            let rule = vacunaRules[vacuna.toLowerCase()] || vacunaRules[vacuna.toLowerCase().replace(/\s+/g, '')];
+
+            if (!rule) {
+                // Default fallback
+                edadMinimaEl.textContent = 'Ninguno';
+                pesoMinimoEl.textContent = 'Ninguno';
+                reqAdicionalesEl.textContent = 'Ninguno';
+            } else {
+                edadMinimaEl.textContent = (rule.minMonths ? rule.minMonths + ' meses' : 'Ninguno') + (rule.maxMonths ? ' (hasta ' + rule.maxMonths + ' meses)' : '');
+                pesoMinimoEl.textContent = (rule.minWeight ? rule.minWeight + ' kg' : 'Ninguno');
+                reqAdicionalesEl.textContent = rule.note || 'Ninguno';
+            }
+
+            if (!vacuna || !fecha) {
+                proximaDosisFecha.textContent = '-';
+                return;
+            }
+
+            const fechaAplicacion = new Date(fecha + 'T00:00:00');
+            let proximaFecha = null;
+
+            if (rule && rule.nextType === 'months') {
+                proximaFecha = new Date(fechaAplicacion);
+                proximaFecha.setMonth(proximaFecha.getMonth() + rule.nextAmount);
+            } else if (rule && rule.nextType === 'years') {
+                proximaFecha = new Date(fechaAplicacion);
+                proximaFecha.setFullYear(proximaFecha.getFullYear() + rule.nextAmount);
+            } else {
+                // fallback: use 1 year by default (same as server default)
+                proximaFecha = new Date(fechaAplicacion);
+                proximaFecha.setFullYear(proximaFecha.getFullYear() + 1);
+            }
+
+            proximaDosisFecha.textContent = formatDate(proximaFecha);
+        }
+
+        ganadoSelect.addEventListener('change', actualizarDatosGanado);
+        vacunaSelect.addEventListener('change', calcularProximaDosis);
+        fechaAplicacionInput.addEventListener('change', calcularProximaDosis);
+
+        
+        calcularProximaDosis();
+        actualizarDatosGanado();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('success')) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 90px;
+                right: 20px;
+                background-color: var(--accent-blue);
+                color: white;
+                padding: 12px 20px;
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                z-index: 1000;
+                font-weight: 500;
+            `;
+            toast.textContent = 'Vacuna registrada exitosamente';
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if (document.body.contains(toast)) document.body.removeChild(toast);
+            }, 3000);
+        }
+    });
+</script>
+</body>
+</html>

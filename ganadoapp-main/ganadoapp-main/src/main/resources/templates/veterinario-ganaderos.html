@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ganaderos - Veterinario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--brand-900:#0f2a0f;--brand-500:#2a6b2a;--muted:#6b7280;--surface:#ffffff;--shadow:0 10px 30px rgba(15,42,15,0.08);--radius:8px}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Montserrat',sans-serif}
+        body{background:#f5f9f5;color:var(--brand-900)}
+        .top-header{position:fixed;top:0;left:0;right:0;background:var(--surface);padding:15px 40px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);z-index:1000;height:70px}
+        .container{max-width:1200px;margin:0 auto;padding:100px 20px 40px}
+        .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px;border:1px solid rgba(15,42,15,0.05)}
+        .data-table{width:100%;border-collapse:collapse}
+        .data-table th{background:var(--brand-900);color:white;padding:12px;text-align:left}
+        .data-table td{padding:12px;border-bottom:1px solid #e9ecef}
+    .btn{padding:8px 12px;border-radius:8px;text-decoration:none;border:1.5px solid var(--brand-500);color:var(--brand-500);}
+        .action-link{color:var(--brand-500);font-weight:600;text-decoration:none}
+        @media(max-width:768px){.container{padding:120px 15px 30px}}
+    </style>
+</head>
+<body>
+<div class="top-header">
+    <a href="/" class="logo"><div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;background:linear-gradient(135deg,#2a6b2a,#0f2a0f);border-radius:8px;color:white;display:flex;align-items:center;justify-content:center">SG</div><div style="font-weight:800">SISTEMA GANADERO</div></div></a>
+    <div style="display:flex;gap:12px"><a href="/logout" style="padding:8px 14px;border-radius:8px;border:1.5px solid #2a6b2a;color:#2a6b2a;text-decoration:none">CERRAR SESIÓN</a></div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Ganaderos registrados</h2>
+        <p style="color:var(--muted)">Listado de usuarios con rol <strong>GANADERO</strong></p>
+
+        <div style="margin-top:20px;overflow-x:auto">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Marca</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="g : ${ganaderos}">
+                    <td th:text="${g.nombre}">Nombre</td>
+                    <td th:text="${g.email}">email@ejemplo.com</td>
+                    <td th:text="${g.marcaRegistro}">Marca</td>
+                    <td><a th:href="@{/veterinario/ganadero/{id}(id=${g.id})}" class="action-link">VER DETALLE</a></td>
+                </tr>
+                <tr th:if="${ganaderos.isEmpty()}"><td colspan="4" style="color:var(--muted);padding:18px;text-align:center">No se encontraron ganaderos</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

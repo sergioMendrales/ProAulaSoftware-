@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estadísticas de Ganado - Sistema Ganadero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Fuente Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-900: #0f2a0f;
+            --brand-700: #1a331a;
+            --brand-500: #2a6b2a;
+            --brand-300: #4a9c4a;
+            --accent-blue: #1e40af;
+            --accent-orange: #ea580c;
+            --accent-purple: #7c3aed;
+            --muted: #6b7280;
+            --surface: #ffffff;
+            --accent: #e9f6ea;
+            --shadow: 0 10px 30px rgba(15, 42, 15, 0.08);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: #f5f9f5;
+            color: var(--brand-900);
+            background-image:
+                    radial-gradient(circle at 10% 20%, rgba(233, 246, 234, 0.3) 0%, transparent 20%),
+                    radial-gradient(circle at 90% 80%, rgba(233, 246, 234, 0.3) 0%, transparent 20%);
+        }
+
+        /* Header fijo */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--brand-500), var(--brand-900));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--brand-900);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--brand-900);
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: transparent;
+            color: var(--brand-500);
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: 1.5px solid var(--brand-500);
+        }
+
+        .logout-btn:hover {
+            background: var(--brand-500);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px 40px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .page-title {
+            color: var(--brand-900);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .page-title::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 24px;
+            background-color: var(--brand-500);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3v18h18'/%3E%3Cpath d='m19 9-5 5-4-4-3 3'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3v18h18'/%3E%3Cpath d='m19 9-5 5-4-4-3 3'/%3E%3C/svg%3E");
+        }
+
+        .page-subtitle {
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(15, 42, 15, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .stat-card:nth-child(1)::before {
+            background: linear-gradient(90deg, var(--brand-500), var(--brand-300));
+        }
+
+        .stat-card:nth-child(2)::before {
+            background: linear-gradient(90deg, var(--accent-blue), #3b82f6);
+        }
+
+        .stat-card:nth-child(3)::before {
+            background: linear-gradient(90deg, var(--accent-orange), #f97316);
+        }
+
+        .stat-card:nth-child(4)::before {
+            background: linear-gradient(90deg, var(--accent-purple), #8b5cf6);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(15, 42, 15, 0.15);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-card:nth-child(1) .stat-icon {
+            background-color: rgba(42, 107, 42, 0.1);
+            color: var(--brand-500);
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            background-color: rgba(30, 64, 175, 0.1);
+            color: var(--accent-blue);
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background-color: rgba(234, 88, 12, 0.1);
+            color: var(--accent-orange);
+        }
+
+        .stat-card:nth-child(4) .stat-icon {
+            background-color: rgba(124, 58, 237, 0.1);
+            color: var(--accent-purple);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--brand-900);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--brand-900);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 20px;
+            background-color: var(--brand-500);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1-4 0V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a3 3 0 0 0 3 3h11'/%3E%3Cpath d='M8 8h8'/%3E%3Cpath d='M8 12h8'/%3E%3Cpath d='M8 16h8'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1-4 0V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a3 3 0 0 0 3 3h11'/%3E%3Cpath d='M8 8h8'/%3E%3Cpath d='M8 12h8'/%3E%3Cpath d='M8 16h8'/%3E%3C/svg%3E");
+        }
+
+        .table-container {
+            background-color: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+            border: 1px solid rgba(15, 42, 15, 0.05);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background-color: var(--brand-900);
+            color: white;
+            font-weight: 600;
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 14px;
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e9ecef;
+            color: var(--brand-900);
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background-color: var(--accent);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand-500), var(--brand-300));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            background: var(--brand-500);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--brand-700);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn::before {
+            content: '';
+            display: block;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5M12 19l-7-7 7-7'/%3E%3C/svg%3E");
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H5M12 19l-7-7 7-7'/%3E%3C/svg%3E");
+        }
+
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 12px 20px;
+            }
+
+            .user-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .container {
+                padding: 120px 15px 30px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .data-table {
+                min-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-header">
+    <a href="/" class="logo">
+        <div class="logo-icon">SG</div>
+        <div class="logo-text">SISTEMA GANADERO</div>
+    </a>
+    <div class="user-menu">
+        <div sec:authorize="isAuthenticated()">
+            <span class="user-name" th:text="${#authentication.name}">Usuario</span>
+            <a href="/logout" class="logout-btn">CERRAR SESIÓN</a>
+        </div>
+        <div sec:authorize="!isAuthenticated()">
+            <a href="/login" class="logout-btn">INICIAR SESIÓN</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Estadísticas de Ganado</h1>
+        <p class="page-subtitle">Resumen completo y análisis de la población ganadera</p>
+    </div>
+
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">♂</div>
+            <div class="stat-value" th:text="${machos}">0</div>
+            <div class="stat-label">Total Machos</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">♀</div>
+            <div class="stat-value" th:text="${hembras}">0</div>
+            <div class="stat-label">Total Hembras</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">✓</div>
+            <div class="stat-value" th:text="${saludables}">0</div>
+            <div class="stat-label">Total Sanos</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⚠</div>
+            <div class="stat-value" th:text="${enfermos}">0</div>
+            <div class="stat-label">Total Enfermos</div>
+        </div>
+    </div>
+
+
+    <h2 class="section-title">Distribución por Raza</h2>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Raza</th>
+                <th>Cantidad</th>
+                <th>Porcentaje</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${porRaza}">
+                <td th:text="${entry.key}">Raza</td>
+                <td th:text="${entry.value}">0</td>
+                <td>
+                    <!-- Calculamos el porcentaje (esto sería mejor hacerlo en el controlador) -->
+                    <div th:text="${#numbers.formatDecimal((entry.value / (machos + hembras)) * 100, 1, 1)} + '%'">0%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${(entry.value / (machos + hembras)) * 100} + '%;'"></div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <h2 class="section-title">Resumen General</h2>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Indicador</th>
+                <th>Valor</th>
+                <th>Porcentaje</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Proporción Machos/Hembras</td>
+                <td th:text="${machos} + ' / ' + ${hembras}">0 / 0</td>
+                <td>
+                    <div th:text="${#numbers.formatDecimal((machos / (machos + hembras)) * 100, 1, 1)} + '% / ' + ${#numbers.formatDecimal((hembras / (machos + hembras)) * 100, 1, 1)} + '%'">0% / 0%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${(machos / (machos + hembras)) * 100} + '%;'"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Salud del Ganado</td>
+                <td th:text="${saludables} + ' / ' + ${enfermos}">0 / 0</td>
+                <td>
+                    <div th:text="${#numbers.formatDecimal((saludables / (saludables + enfermos)) * 100, 1, 1)} + '% / ' + ${#numbers.formatDecimal((enfermos / (saludables + enfermos)) * 100, 1, 1)} + '%'">0% / 0%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${(saludables / (saludables + enfermos)) * 100} + '%;'"></div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="action-buttons">
+        <a th:href="@{/ganado/lista}" class="btn">Volver a la Lista de Ganado</a>
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0';
+
+            setTimeout(() => {
+                bar.style.transition = 'width 1s ease';
+                bar.style.width = width;
+            }, 500);
+        });
+    });
+</script>
+</body>
+</html>

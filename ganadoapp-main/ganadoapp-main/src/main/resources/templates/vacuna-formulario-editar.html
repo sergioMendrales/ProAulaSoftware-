@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Vacuna</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+        }
+
+        .form-container {
+            max-width: 650px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        select, input[type="date"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        input[readonly], select:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>Editar Vacuna</h2>
+    <form th:action="@{/vacuna/actualizar}" th:object="${vacuna}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <!-- Ganado (solo lectura) - ahora mostramos el código oficial y enviamos codigoGanado al backend -->
+        <label for="ganado">Ganado Asociado</label>
+        <select id="ganado" disabled>
+            <option th:value="${vacuna.ganadoId}" th:text="${vacuna.codigoGanado}" selected></option>
+        </select>
+        <input type="hidden" name="codigoGanado" th:value="${vacuna.codigoGanado}" />
+
+        <!-- Nombre de vacuna -->
+        <label for="nombre">Nombre de la Vacuna</label>
+        <select id="nombre" th:field="*{nombre}" required>
+            <option value="">Seleccione una vacuna</option>
+            <option value="Fiebre Aftosa">Fiebre Aftosa</option>
+            <option value="Rabia">Rabia</option>
+            <option value="Brucelosis">Brucelosis</option>
+            <option value="Carbunco">Carbunco</option>
+            <option value="Leptospirosis">Leptospirosis</option>
+        </select>
+
+        <!-- Fecha de aplicación -->
+        <label for="fechaAplicacion">Fecha de Aplicación</label>
+        <input type="date" id="fechaAplicacion" th:field="*{fechaAplicacion}" required/>
+
+        <!-- Intervalo -->
+        <label for="intervaloCantidad">Intervalo para próxima dosis</label>
+        <input type="number" id="intervaloCantidad" th:field="*{intervaloCantidad}" min="1" max="365" required placeholder="Ej: 30"/>
+
+        <!-- Unidad de tiempo -->
+        <label for="unidadTiempo">Unidad de Tiempo</label>
+        <select id="unidadTiempo" th:field="*{unidadTiempo}">
+            <option value="dias">Días</option>
+            <option value="semanas">Semanas</option>
+            <option value="meses">Meses</option>
+        </select>
+
+        <!-- Próxima dosis -->
+        <label for="proximaDosis">Próxima Dosis</label>
+        <input type="date" id="proximaDosis" th:field="*{proximaDosis}" readonly/>
+
+        <!-- Botones -->
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+            <a th:href="@{/ganado/lista}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    const fechaAplicacion = document.getElementById("fechaAplicacion");
+    const intervalo = document.getElementById("intervaloCantidad");
+    const unidad = document.getElementById("unidadTiempo");
+    const proximaDosis = document.getElementById("proximaDosis");
+
+    function calcularProximaDosis() {
+        const fecha = new Date(fechaAplicacion.value);
+        const cantidad = parseInt(intervalo.value);
+        const unidadTiempo = unidad.value;
+
+        if (!isNaN(fecha.getTime()) && cantidad > 0) {
+            if (unidadTiempo === "dias") {
+                fecha.setDate(fecha.getDate() + cantidad);
+            } else if (unidadTiempo === "semanas") {
+                fecha.setDate(fecha.getDate() + (cantidad * 7));
+            } else if (unidadTiempo === "meses") {
+                fecha.setMonth(fecha.getMonth() + cantidad);
+            }
+            const proxima = fecha.toISOString().split("T")[0];
+            proximaDosis.value = proxima;
+        }
+    }
+
+    fechaAplicacion.addEventListener("change", calcularProximaDosis);
+    intervalo.addEventListener("input", calcularProximaDosis);
+    unidad.addEventListener("change", calcularProximaDosis);
+    window.addEventListener("load", calcularProximaDosis);
+</script>
+</body>
+</html>

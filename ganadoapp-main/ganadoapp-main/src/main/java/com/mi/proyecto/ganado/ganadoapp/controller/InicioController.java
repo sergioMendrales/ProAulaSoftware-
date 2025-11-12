@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class InicioController {
     @GetMapping("/")
     public String bienvenido() {
-        // Devolver el nombre de plantilla exactamente como existe en templates: "Bienvenido.html"
+
         return "Bienvenido";
     }
 

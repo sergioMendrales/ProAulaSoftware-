@@ -14,6 +14,18 @@ services:
     volumes:
       - mongo-data:/data/db
 
+  app:
+    build: .
+    container_name: ganadoapp-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Spring Boot will pick this up as spring.data.mongodb.uri
+      SPRING_DATA_MONGODB_URI: "mongodb://ganado_admin:change_me_password@mongo:27017/ganadodb?authSource=admin"
+    depends_on:
+      - mongo
+
 volumes:
   mongo-data:
     name: ganadoapp-mongo-data

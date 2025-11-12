@@ -1,19 +1,21 @@
 package com.mi.proyecto.ganado.ganadoapp.controller;
 
+import java.util.List;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.mi.proyecto.ganado.ganadoapp.model.Ganado;
-// import com.mi.proyecto.ganado.ganadoapp.model.Ganadero; // ya no usamos la entidad Ganadero directamente
+import com.mi.proyecto.ganado.ganadoapp.model.Vacuna;
 import com.mi.proyecto.ganado.ganadoapp.service.GanadoService;
 import com.mi.proyecto.ganado.ganadoapp.service.UsuarioService;
 import com.mi.proyecto.ganado.ganadoapp.service.VacunaService;
-import com.mi.proyecto.ganado.ganadoapp.model.Vacuna;
-// import com.mi.proyecto.ganado.ganadoapp.repository.GanaderoRepository; // no requerido cuando leemos desde usuarios
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/veterinario")
@@ -31,7 +33,7 @@ public class VeterinarioController {
 
     @GetMapping("/ganaderos")
     public String listarGanaderos(Model model) {
-    // Leemos los usuarios con rol GANADERO de la colección 'usuarios'
+
     List<com.mi.proyecto.ganado.ganadoapp.model.Usuario> ganaderos = usuarioService.listarTodos().stream()
         .filter(u -> u.getRol() != null && u.getRol().equalsIgnoreCase("GANADERO"))
         .toList();
@@ -46,7 +48,7 @@ public class VeterinarioController {
     com.mi.proyecto.ganado.ganadoapp.model.Usuario ganadero = usuarioService.buscarPorId(id)
         .orElseThrow(() -> new RuntimeException("Ganadero no encontrado"));
 
-    // Listar ganado cuyo propietarioId sea el id del usuario/ganadero
+
     List<Ganado> ganadoList = ganadoService.listarPorPropietario(id);
 
     model.addAttribute("ganadero", ganadero);
@@ -59,14 +61,14 @@ public class VeterinarioController {
     public String mostrarFormularioVacunaParaGanadero(@PathVariable String id,
                                                       @RequestParam(value = "selectedGanado", required = false) String selectedGanado,
                                                       Model model) {
-        // Preparar modelo para la vista de veterinario: solo los ganados del ganadero que se está viendo
+
         model.addAttribute("vacuna", new Vacuna());
         java.util.List<Ganado> ganados = ganadoService.listarPorPropietario(id);
         model.addAttribute("ganados", ganados);
         model.addAttribute("selectedGanadoId", selectedGanado);
         model.addAttribute("ganaderoId", id);
 
-        // Información del usuario autenticado (quién aplica la vacuna)
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && auth.getName() != null && !"anonymousUser".equals(auth.getName())) {
             usuarioService.buscarPorEmail(auth.getName()).ifPresent(u -> {
@@ -83,7 +85,7 @@ public class VeterinarioController {
         Ganado ganado = ganadoService.obtenerPorId(id)
                 .orElseThrow(() -> new RuntimeException("Ganado no encontrado"));
 
-        // Obtener vacunas del ganado (compatibilidad: por id interno y por código oficial)
+
         java.util.List<Vacuna> vacunasDelGanado = vacunaService.obtenerVacunasPorGanadoId(id);
         if (vacunasDelGanado == null || vacunasDelGanado.isEmpty()) {
             String codigoOficial = ganado.getCodigoOficial();
@@ -94,12 +96,12 @@ public class VeterinarioController {
 
         model.addAttribute("ganado", ganado);
         model.addAttribute("vacunas", vacunasDelGanado);
-        // En la vista que muestra el veterinario no queremos que aparezcan los botones de edición
+
         model.addAttribute("mostrarAccionesEdicion", false);
         return "detalle-ganado";
     }
 
-    // Endpoint de migración: copia ganaderos/veterinarios existentes de 'usuarios' a sus colecciones
+
     @GetMapping("/migrate-data")
     public String migrateData() {
         long ganaderosMigraron = usuarioService.migrateGanaderos();
@@ -108,7 +110,7 @@ public class VeterinarioController {
         return "redirect:/veterinario/ganaderos";
     }
 
-    // Endpoint para corregir ganados sin propietario intentando emparejarlos por marca
+
     @GetMapping("/fix-ganado-owners")
     public String fixGanadoOwners() {
         int fixed = ganadoService.asignarPropietariosPorMarca();

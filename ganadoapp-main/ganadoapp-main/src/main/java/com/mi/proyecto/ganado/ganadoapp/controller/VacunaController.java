@@ -39,7 +39,7 @@ public class VacunaController {
                                          @RequestParam(value = "codigoGanado", required = false) String codigoGanado) {
         model.addAttribute("vacuna", new Vacuna());
         
-        // Obtener usuario actual para detectar su rol
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userRole = null;
         String userId = null;
@@ -56,8 +56,7 @@ public class VacunaController {
             }
         }
         
-        // Si es veterinario, mostrar todos los ganados
-        // Si es ganadero, mostrar solo sus ganados
+
         java.util.List<Ganado> ganados;
         if ("VETERINARIO".equalsIgnoreCase(userRole)) {
             ganados = ganadoService.listarGanados();
@@ -78,7 +77,7 @@ public class VacunaController {
                                 @RequestParam(value = "aplicadoPorUsuarioId", required = false) String aplicadoPorUsuarioId,
                                 RedirectAttributes redirectAttributes) {
 
-        // Asegurarnos de que ganadoId está establecido
+
         if (codigoGanado == null || codigoGanado.trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("mensaje", "Error: ID de ganado no proporcionado");
             redirectAttributes.addFlashAttribute("tipoMensaje", "danger");
@@ -88,7 +87,7 @@ public class VacunaController {
         vacuna.setAplicadoPorUsuarioId(aplicadoPorUsuarioId);
         String ganadoId = vacuna.getGanadoId();
         
-        // Detectar el rol del usuario actual para redirigir correctamente
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String returnUrl = "/ganado/detalle/" + ganadoId; // por defecto, ganadero
         
@@ -96,7 +95,7 @@ public class VacunaController {
             var usuarioOpt = usuarioService.buscarPorEmail(auth.getName());
             if (usuarioOpt.isPresent()) {
                 String userRole = usuarioOpt.get().getRol();
-                // Si es veterinario, redirigir a la vista del veterinario
+
                 if ("VETERINARIO".equalsIgnoreCase(userRole)) {
                     returnUrl = "/veterinario/ganado/" + ganadoId;
                 }
@@ -104,9 +103,16 @@ public class VacunaController {
         }
         
         try {
-            vacunaService.registrarVacuna(vacuna);
-            redirectAttributes.addFlashAttribute("mensaje", "Vacuna registrada correctamente");
-            redirectAttributes.addFlashAttribute("tipoMensaje", "success");
+            Vacuna vacunaGuardada = vacunaService.registrarVacuna(vacuna);
+            // Si el servicio añadió observaciones (p. ej. recomendaciones por peso/edad),
+            // presentamos una alerta de advertencia junto al mensaje de éxito.
+            if (vacunaGuardada.getObservaciones() != null && !vacunaGuardada.getObservaciones().isEmpty()) {
+                redirectAttributes.addFlashAttribute("mensaje", "Vacuna registrada correctamente. " + vacunaGuardada.getObservaciones());
+                redirectAttributes.addFlashAttribute("tipoMensaje", "warning");
+            } else {
+                redirectAttributes.addFlashAttribute("mensaje", "Vacuna registrada correctamente");
+                redirectAttributes.addFlashAttribute("tipoMensaje", "success");
+            }
             return "redirect:" + returnUrl;
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("mensaje", "Error: " + ex.getMessage());

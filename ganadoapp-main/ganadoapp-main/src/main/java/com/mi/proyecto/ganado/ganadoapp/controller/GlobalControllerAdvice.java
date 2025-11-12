@@ -11,12 +11,12 @@ public class GlobalControllerAdvice {
 
     @ModelAttribute("userEmail")
     public String addUserEmail(Principal principal, Authentication authentication) {
-        // Principal.getName() contiene el username que guardamos como email en UserDetails
+
         if (principal != null) {
             return principal.getName();
         }
 
-        // Fallback: intentar obtener desde Authentication
+
         if (authentication != null && authentication.getName() != null) {
             return authentication.getName();
         }

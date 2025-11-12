@@ -19,7 +19,7 @@ public class DebugController {
         this.usuarioService = usuarioService;
     }
 
-    // Endpoint para desarrollo: lista usuarios sin exponer contraseñas
+
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> listUsers() {
         List<UserDto> users = usuarioService.listarTodos().stream()

@@ -1,10 +1,10 @@
 package com.mi.proyecto.ganado.ganadoapp.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "vacunas")
 public class Vacuna {
@@ -19,7 +19,7 @@ public class Vacuna {
     private String ganadoId;
     private String codigoGanado;
     private String aplicadoPorUsuarioId;
-    // Campos adicionales para soporte de intervalos y próxima dosis desde la UI
+
     private Integer intervaloCantidad;
     private String unidadTiempo;
     private LocalDate proximaDosis;
@@ -51,7 +51,7 @@ public class Vacuna {
         this.aplicadoPorUsuarioId = aplicadoPorUsuarioId;
     }
 
-    // Getters/Setters para los nuevos campos usados por la plantilla de edición
+
     public Integer getIntervaloCantidad() {
         return intervaloCantidad;
     }

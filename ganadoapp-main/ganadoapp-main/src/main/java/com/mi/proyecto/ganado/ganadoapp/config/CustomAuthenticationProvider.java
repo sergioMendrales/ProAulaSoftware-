@@ -1,17 +1,16 @@
 package com.mi.proyecto.ganado.ganadoapp.config;
 
-import com.mi.proyecto.ganado.ganadoapp.model.Usuario;
-import com.mi.proyecto.ganado.ganadoapp.repository.UsuarioRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.mi.proyecto.ganado.ganadoapp.model.Usuario;
+import com.mi.proyecto.ganado.ganadoapp.repository.UsuarioRepository;
 
 /**
  * Provider que valida primero que el rol solicitado (en details) coincida con

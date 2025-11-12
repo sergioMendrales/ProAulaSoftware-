@@ -1,8 +1,9 @@
 package com.mi.proyecto.ganado.ganadoapp.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Extiende el filtro estándar para inyectar el parámetro "loginAs" dentro del

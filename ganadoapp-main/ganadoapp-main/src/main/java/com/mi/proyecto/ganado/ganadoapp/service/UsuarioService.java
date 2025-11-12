@@ -1,16 +1,17 @@
 package com.mi.proyecto.ganado.ganadoapp.service;
 
-import com.mi.proyecto.ganado.ganadoapp.model.Usuario;
-import com.mi.proyecto.ganado.ganadoapp.model.Ganadero;
-import com.mi.proyecto.ganado.ganadoapp.model.Veterinario;
-import com.mi.proyecto.ganado.ganadoapp.repository.UsuarioRepository;
-import com.mi.proyecto.ganado.ganadoapp.repository.GanaderoRepository;
-import com.mi.proyecto.ganado.ganadoapp.repository.VeterinarioRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.mi.proyecto.ganado.ganadoapp.model.Ganadero;
+import com.mi.proyecto.ganado.ganadoapp.model.Usuario;
+import com.mi.proyecto.ganado.ganadoapp.model.Veterinario;
+import com.mi.proyecto.ganado.ganadoapp.repository.GanaderoRepository;
+import com.mi.proyecto.ganado.ganadoapp.repository.UsuarioRepository;
+import com.mi.proyecto.ganado.ganadoapp.repository.VeterinarioRepository;
 
 @Service
 public class UsuarioService {
@@ -51,9 +52,9 @@ public class UsuarioService {
         u.setRol("GANADERO");
         Usuario saved = registrarUsuario(u);
 
-        // Crear/guardar documento en colección 'ganaderos' con el MISMO ID
+
         Ganadero g = new Ganadero();
-        g.setId(saved.getId());  // Mismo ID que el usuario
+        g.setId(saved.getId());
         g.setNombre(saved.getNombre());
         g.setEmail(saved.getEmail());
         g.setPassword(saved.getPassword());
@@ -76,9 +77,9 @@ public class UsuarioService {
         u.setRol("VETERINARIO");
         Usuario saved = registrarUsuario(u);
 
-        // Crear/guardar documento en colección 'veterinarios' con el MISMO ID
+
         Veterinario v = new Veterinario();
-        v.setId(saved.getId());  // Mismo ID que el usuario
+        v.setId(saved.getId());
         v.setNombre(saved.getNombre());
         v.setEmail(saved.getEmail());
         v.setPassword(saved.getPassword());
@@ -111,10 +112,7 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    /**
-     * Busca un usuario (ganadero) por su marcaRegistro (marca de 3 letras, ej. "MVC").
-     * Devuelve el usuario si lo encuentra (case-insensitive).
-     */
+
     public Optional<Usuario> buscarPorMarca(String marca) {
         if (marca == null || marca.isEmpty()) {
             return Optional.empty();
@@ -127,7 +125,7 @@ public class UsuarioService {
                 .findFirst();
     }
 
-    // Migración: copiar ganaderos existentes de 'usuarios' a 'ganaderos'
+
     public long migrateGanaderos() {
         List<Usuario> ganaderos = usuarioRepository.findAll().stream()
                 .filter(u -> "GANADERO".equalsIgnoreCase(u.getRol()))
@@ -149,7 +147,7 @@ public class UsuarioService {
         return migrados;
     }
 
-    // Migración: copiar veterinarios existentes de 'usuarios' a 'veterinarios'
+
     public long migrateVeterinarios() {
         List<Usuario> veterinarios = usuarioRepository.findAll().stream()
                 .filter(u -> "VETERINARIO".equalsIgnoreCase(u.getRol()))

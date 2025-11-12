@@ -23,10 +23,10 @@ public class CustomUserDetailsConfig implements UserDetailsService {
         Usuario usuario = usuarioRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
-        // Asignar rol por defecto si no tiene
+
         String rol = usuario.getRol() != null ? usuario.getRol().toUpperCase() : "GANADERO";
 
-        // Validar que solo sea GANADERO o VETERINARIO
+
         if (!rol.equals("GANADERO") && !rol.equals("VETERINARIO")) {
             rol = "GANADERO";
         }

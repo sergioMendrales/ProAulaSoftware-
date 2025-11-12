@@ -20,7 +20,7 @@ public class RegistroController {
     @GetMapping
     public String mostrarFormularioRegistro(Model model) {
         model.addAttribute("usuario", new Usuario());
-        return "registro"; // archivo registro.html en templates
+        return "registro";
     }
 
 

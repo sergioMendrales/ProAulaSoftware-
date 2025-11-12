@@ -1,14 +1,15 @@
 package com.mi.proyecto.ganado.ganadoapp.service;
 
-import com.mi.proyecto.ganado.ganadoapp.model.Ganado;
-import com.mi.proyecto.ganado.ganadoapp.model.Vacuna;
-import com.mi.proyecto.ganado.ganadoapp.repository.GanadoRepository;
-import com.mi.proyecto.ganado.ganadoapp.repository.GanaderoRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.mi.proyecto.ganado.ganadoapp.model.Ganado;
+import com.mi.proyecto.ganado.ganadoapp.model.Vacuna;
+import com.mi.proyecto.ganado.ganadoapp.repository.GanaderoRepository;
+import com.mi.proyecto.ganado.ganadoapp.repository.GanadoRepository;
 
 @Service
 public class GanadoService {
@@ -19,7 +20,7 @@ public class GanadoService {
     @Autowired
     private GanaderoRepository ganaderoRepository;
 
-    // Nombre de métodos alineados con lo que usan tus controllers
+
     public List<Ganado> listarGanados() {
         return ganadoRepository.findAll();
     }
@@ -56,11 +57,7 @@ public class GanadoService {
         return ganadoRepository.save(ganado);
     }
 
-    /**
-     * Intenta asignar `propietarioId` a los registros de ganado que no lo tienen
-     * buscando coincidencias por `marcaRegistro` al inicio de `codigoOficial`.
-     * Devuelve la cantidad de documentos actualizados.
-     */
+
     public int asignarPropietariosPorMarca() {
         List<Ganado> todos = ganadoRepository.findAll();
         List<com.mi.proyecto.ganado.ganadoapp.model.Ganadero> ganaderos = ganaderoRepository.findAll();

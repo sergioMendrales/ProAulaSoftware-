@@ -611,10 +611,10 @@
 
         <!-- Mensajes flash: éxito / error al guardar vacuna -->
         <div th:if="${mensaje}" style="margin-bottom:18px;" class="animate_animated animate_fadeIn">
-            <div th:classappend="${tipoMensaje} == 'success' ? 'date-info' : 'date-info'" 
-                 th:style="${tipoMensaje} == 'success' ? 'border-left:3px solid #16a34a; background:#e6ffed; color:#065f46; padding:12px; border-radius:8px;' : 'border-left:3px solid #dc2626; background:#fff2f2; color:#7f1d1d; padding:12px; border-radius:8px;'">
-                <i th:class="${tipoMensaje} == 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle'" style="margin-right: 8px;"></i>
-                <strong th:text="${tipoMensaje} == 'success' ? 'Éxito:' : 'Error:'"></strong>
+            <div th:classappend="'date-info'"
+                 th:style="${tipoMensaje} == 'success' ? 'border-left:3px solid #16a34a; background:#e6ffed; color:#065f46; padding:12px; border-radius:8px;' : (${tipoMensaje} == 'warning' ? 'border-left:3px solid #f59e0b; background:#fff7ed; color:#92400e; padding:12px; border-radius:8px;' : 'border-left:3px solid #dc2626; background:#fff2f2; color:#7f1d1d; padding:12px; border-radius:8px;')">
+                <i th:class="${tipoMensaje} == 'success' ? 'fas fa-check-circle' : (${tipoMensaje} == 'warning' ? 'fas fa-exclamation-circle' : 'fas fa-exclamation-triangle')" style="margin-right: 8px;"></i>
+                <strong th:text="${tipoMensaje} == 'success' ? 'Éxito:' : (${tipoMensaje} == 'warning' ? 'Advertencia:' : 'Error:')"></strong>
                 <span th:text="${mensaje}" style="margin-left:8px"></span>
             </div>
         </div>

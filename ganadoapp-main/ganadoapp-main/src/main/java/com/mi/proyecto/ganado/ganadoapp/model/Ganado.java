@@ -61,7 +61,7 @@ public class Ganado {
         this.carnetVacunas.add(vacuna);
     }
 
-    /* getters y setters tradicionales */
+
 
     public String getId() {
         return this.id;

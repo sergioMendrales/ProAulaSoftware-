@@ -2,6 +2,8 @@ package com.mi.proyecto.ganado.ganadoapp.controller;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,13 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.mi.proyecto.ganado.ganadoapp.model.Ganado;
 import com.mi.proyecto.ganado.ganadoapp.model.Vacuna;
 import com.mi.proyecto.ganado.ganadoapp.service.GanadoService;
 import com.mi.proyecto.ganado.ganadoapp.service.UsuarioService;
 import com.mi.proyecto.ganado.ganadoapp.service.VacunaService;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import com.mi.proyecto.ganado.ganadoapp.model.Ganado;
 
 @Controller
 @RequestMapping("/vacuna")
@@ -39,7 +39,7 @@ public class VacunaController {
                                          @RequestParam(value = "codigoGanado", required = false) String codigoGanado) {
         model.addAttribute("vacuna", new Vacuna());
         
-
+        // Obtener usuario actual para detectar su rol
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userRole = null;
         String userId = null;
@@ -56,7 +56,8 @@ public class VacunaController {
             }
         }
         
-
+        // Si es veterinario, mostrar todos los ganados
+        // Si es ganadero, mostrar solo sus ganados
         java.util.List<Ganado> ganados;
         if ("VETERINARIO".equalsIgnoreCase(userRole)) {
             ganados = ganadoService.listarGanados();
@@ -77,7 +78,7 @@ public class VacunaController {
                                 @RequestParam(value = "aplicadoPorUsuarioId", required = false) String aplicadoPorUsuarioId,
                                 RedirectAttributes redirectAttributes) {
 
-
+        // Asegurarnos de que ganadoId está establecido
         if (codigoGanado == null || codigoGanado.trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("mensaje", "Error: ID de ganado no proporcionado");
             redirectAttributes.addFlashAttribute("tipoMensaje", "danger");
@@ -87,7 +88,7 @@ public class VacunaController {
         vacuna.setAplicadoPorUsuarioId(aplicadoPorUsuarioId);
         String ganadoId = vacuna.getGanadoId();
         
-
+        // Detectar el rol del usuario actual para redirigir correctamente
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String returnUrl = "/ganado/detalle/" + ganadoId; // por defecto, ganadero
         
@@ -95,7 +96,7 @@ public class VacunaController {
             var usuarioOpt = usuarioService.buscarPorEmail(auth.getName());
             if (usuarioOpt.isPresent()) {
                 String userRole = usuarioOpt.get().getRol();
-
+                // Si es veterinario, redirigir a la vista del veterinario
                 if ("VETERINARIO".equalsIgnoreCase(userRole)) {
                     returnUrl = "/veterinario/ganado/" + ganadoId;
                 }

@@ -39,7 +39,8 @@ public class GanadoController {
 
     @PostMapping("/guardar")
     public String guardarGanado(@ModelAttribute Ganado ganado) {
-
+        // Estrategia 1: Intentar extraer la marca del codigoOficial (ej. "MVC-...")
+        // y asignar propietario basado en la marca (garantiza separación por marca)
         String propietarioAsignado = null;
         if (ganado.getCodigoOficial() != null && !ganado.getCodigoOficial().isEmpty()) {
             String[] partes = ganado.getCodigoOficial().split("-");
@@ -60,7 +61,7 @@ public class GanadoController {
             }
         }
 
-
+        // Estrategia 2: Si no se pudo asignar por marca, intentar asignar desde usuario autenticado (fallback)
         if (propietarioAsignado == null) {
             try {
                 String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -81,7 +82,7 @@ public class GanadoController {
 
     @GetMapping("/lista")
     public String listarGanado(Model model) {
-
+        // Obtener usuario autenticado y mostrar solo SUS ganados
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         List<Ganado> ganados = new java.util.ArrayList<>();
         
@@ -103,22 +104,23 @@ public class GanadoController {
         Ganado ganado = ganadoService.obtenerPorId(id)
                 .orElseThrow(() -> new RuntimeException("Ganado no encontrado"));
 
-
+        // Verificar que el usuario autenticado es el propietario del ganado
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         if (username != null && !username.isEmpty() && !"anonymousUser".equals(username)) {
             var usuarioActual = usuarioService.buscarPorEmail(username);
             if (usuarioActual.isPresent()) {
-
+                // Si el ganado tiene propietario y NO es el usuario actual, denegar acceso
                 if (ganado.getPropietarioId() != null && !ganado.getPropietarioId().equals(usuarioActual.get().getId())) {
                     throw new RuntimeException("No tienes permisos para ver este ganado");
                 }
             }
         }
 
-
+        // Primero intentamos obtener las vacunas por el id interno del ganado.
         List<Vacuna> vacunasDelGanado = vacunaService.obtenerVacunasPorGanadoId(id);
 
-
+        // Si no hay vacunas encontradas por id (por compatibilidad con versiones
+        // anteriores) intentamos buscarlas por el código oficial del ganado.
         if (vacunasDelGanado == null || vacunasDelGanado.isEmpty()) {
             String codigoOficial = ganado.getCodigoOficial();
             if (codigoOficial != null && !codigoOficial.isEmpty()) {
@@ -130,7 +132,7 @@ public class GanadoController {
         model.addAttribute("vacuna", new Vacuna());
         model.addAttribute("vacunas", vacunasDelGanado);
 
-
+        // Mostrar botones de edición solo en la vista de propietario (controlado por el controlador)
         model.addAttribute("mostrarAccionesEdicion", true);
 
         return "detalle-ganado";
@@ -138,7 +140,7 @@ public class GanadoController {
 
     @GetMapping("/eliminar/{id}")
     public String eliminarGanado(@PathVariable("id") String id) {
-
+        // Verificar que el usuario autenticado es el propietario del ganado
         Ganado ganado = ganadoService.obtenerPorId(id)
                 .orElseThrow(() -> new RuntimeException("Ganado no encontrado"));
         
@@ -161,7 +163,7 @@ public class GanadoController {
         Ganado ganado = ganadoService.obtenerPorId(id)
                 .orElseThrow(() -> new RuntimeException("Ganado no encontrado"));
         
-
+        // Verificar que el usuario autenticado es el propietario del ganado
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         if (username != null && !username.isEmpty() && !"anonymousUser".equals(username)) {
             var usuarioActual = usuarioService.buscarPorEmail(username);
